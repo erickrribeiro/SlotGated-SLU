@@ -347,6 +347,24 @@ with tf.Session() as sess:
                 semantic_error = np.mean(semantic_error)*100.0
 
                 f1, precision, recall = computeF1Score(correct_slots, slot_outputs)
+                
+                if "test" in in_path:
+                    print("save intent.out")
+                    with open("intent.out", "w") as outfile:
+                        for true, pred in zip(correct_intents, pred_intents):
+                            outfile.write("{} {}\n".format(true, pred))
+
+                    print("save slot.out")
+                    with open(in_path) as infile:
+                        data = infile.readlines()
+                        lines = [line.split() for line in data]
+                        with open("slot.out", "w") as outfile:
+                            print(len(lines), len(correct_slots), len(slot_outputs))
+                            for i in range(len(lines)):
+                                for w, true, pred in zip(lines[i], correct_slots[i], slot_outputs[i]):
+                                    outfile.write("{} {} {}\n".format(w, true, pred))
+                                outfile.write("\n")
+
                 logging.info('slot f1: ' + str(f1))
                 logging.info('intent accuracy: ' + str(accuracy))
                 logging.info('semantic error(intent, slots are all correct): ' + str(semantic_error))
